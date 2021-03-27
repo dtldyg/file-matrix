@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd physics-sync-demo
+nohup python3 src/server_main.py > ../log.out 2>&1 &
