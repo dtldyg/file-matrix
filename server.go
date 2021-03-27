@@ -95,14 +95,14 @@ func pushDirHandler(resp http.ResponseWriter, req *http.Request) {
 }
 
 func pushFileHandler(resp http.ResponseWriter, req *http.Request) {
-	name := req.FormValue("name")
-	fileStr := req.FormValue("file")
+	name := req.Header.Get("name")
+	fileData, _ := ioutil.ReadAll(req.Body)
 
 	pushLock.RLock()
 	push := namePush[name]
 	pushLock.RUnlock()
 
-	push.fileChan <- []byte(fileStr)
+	push.fileChan <- fileData
 }
 
 // browser

